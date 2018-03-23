@@ -1,0 +1,109 @@
+CREATE DATABASE uta_appointment_app;
+use uta_appointment_app;
+CREATE TABLE Departments (
+    departmentId int NOT NULL AUTO_INCREMENT,
+	name varchar(50),
+    PRIMARY KEY (departmentId)
+);
+CREATE TABLE Courses (
+    courseId int NOT NULL AUTO_INCREMENT,
+    name varchar(50),
+    departmentId int(5),
+    courseNo int(4),
+    sectionNo varchar(5),
+    pNetId char(7),
+	PRIMARY KEY(courseId),
+	FOREIGN KEY (departmentId) REFERENCES Departments(departmentId)
+);
+CREATE TABLE UserType (
+    userTypeId int NOT NULL AUTO_INCREMENT,
+	userTypeName varchar(10),
+	PRIMARY KEY (userTypeId)
+);
+CREATE TABLE UserAccounts (
+    netId char(7),
+    password char(255),
+    name varchar(50),
+    email varchar(50),
+    userType int(1),
+	departmentId int(5),
+	PRIMARY KEY (netId),
+	FOREIGN KEY (departmentId) REFERENCES Departments(departmentId),
+	FOREIGN KEY (userType) REFERENCES UserType(userTypeId)
+);
+CREATE TABLE Enrollment (
+    enrollmentId int NOT NULL AUTO_INCREMENT,
+	netId char(7),
+    courseId int(10),
+    PRIMARY KEY (enrollmentId),
+	FOREIGN KEY (netId) REFERENCES UserAccounts(netId),
+	FOREIGN KEY (courseId) REFERENCES Courses(courseId)
+);
+CREATE TABLE Comment (
+    commentId int NOT NULL AUTO_INCREMENT,
+	comment text,
+	PRIMARY KEY (commentId)
+);
+CREATE TABLE Request (
+    requestId int NOT NULL AUTO_INCREMENT,
+	sNetId char(7),
+	pNetId char(7),
+	PRIMARY KEY (requestId),
+	FOREIGN KEY (sNetId) REFERENCES UserAccounts(netId),
+	FOREIGN KEY (pNetId) REFERENCES UserAccounts(netId)
+);
+CREATE TABLE Messages (
+    messageId int NOT NULL AUTO_INCREMENT,
+	requestId int(11),
+	commentId int(10),
+	senderNetId char(7),
+	sentDate date,
+	sentTime time,
+    PRIMARY KEY (messageId),
+	FOREIGN KEY (requestId) REFERENCES Request(requestId),
+	FOREIGN KEY (commentId) REFERENCES Comment(commentId)
+);
+CREATE TABLE Frequency (
+    frequencyId int NOT NULL AUTO_INCREMENT,
+	days varchar(20),
+	PRIMARY KEY (frequencyId)
+);
+CREATE TABLE OfficeSlots (
+    slotId int NOT NULL AUTO_INCREMENT,
+    pNetId char(7),
+    slotType int(1),
+    slotStartDateTime date,
+	slotEndDateTime date,
+	slotStartTime time,
+    slotEndTime time,
+    slotFrequency int(1),
+	buildingId varchar(10),
+	roomNo varchar(10),
+	PRIMARY KEY (slotId),
+	FOREIGN KEY (pNetId) REFERENCES UserAccounts(netId),
+	FOREIGN KEY (slotFrequency) REFERENCES Frequency(frequencyId)
+);
+CREATE TABLE Status (
+    statusId int NOT NULL AUTO_INCREMENT,
+	statusName varchar(10),
+	PRIMARY KEY (statusId)
+);
+CREATE TABLE Appointments (
+    appointmentId int NOT NULL AUTO_INCREMENT,
+	creationDateTime date,
+	sNetId char(7),
+	slotId int(11),
+	statusId int(1),
+	commentId int(11),	
+	appointmentDate date,
+	PRIMARY KEY (appointmentId),
+	FOREIGN KEY (slotId) REFERENCES OfficeSlots(slotId),
+	FOREIGN KEY (statusId) REFERENCES Status(statusId),
+	FOREIGN KEY (sNetId) REFERENCES UserAccounts(netId)
+);
+
+INSERT INTO `uta_appointment_app`.`status` (`statusName`) VALUES ('Past');
+INSERT INTO `uta_appointment_app`.`status` (`statusName`) VALUES ('Current');
+INSERT INTO `uta_appointment_app`.`status` (`statusName`) VALUES ('Canceled');
+INSERT INTO `uta_appointment_app`.`status` (`statusName`) VALUES ('Closed');
+INSERT INTO `uta_appointment_app`.`status` (`statusName`) VALUES ('Open');
